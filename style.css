@@ -1,0 +1,330 @@
+/* _____________________________
+  |                             |
+  |   Copyright (C) 2023, JEP   |
+  |_____________________________|
+
+  style.css is part of the texashomeschoolmap plugin for thsc.org.
+*/
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@300;700&display=swap');
+
+body {
+	margin: 0;
+	padding: 0;
+}
+
+.texashomeschoolmap {
+	width: 100%;
+	min-width: 800px;
+	height: 100vh;
+	background: #7badde;
+	overflow-x: hidden;
+	position: relative;
+	font-family: 'Roboto', sans-serif;
+	font-weight: 300;
+}
+
+.texashomeschoolmap p {
+	margin: 0;
+}
+
+.texashomeschoolmap select {
+	padding: 6px 8px;
+	max-width: 100%;
+	border-radius: 6px;
+}
+
+.texashomeschoolmap label {
+	margin: 10px 0;
+	font-weight: bold;
+	display: block;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.texashomeschoolmap .header {
+	background: #305b90;
+	color: #ffffff;
+	text-align: left;
+	position: relative;
+	height: auto;
+	border: none;
+}
+
+.texashomeschoolmap .header a {
+	color: #ffffff;
+	font-weight: bold;
+	text-decoration: underline;
+}
+
+.texashomeschoolmap .header .tabbar {
+	background: #9bc1e6;
+}
+
+.texashomeschoolmap .header .tab {
+	border-left: 1px solid #7698c1;
+	display: inline-block;
+	padding: 8px 16px;
+	font-weight: 700;
+	background: #4d82c3;
+	border-top-right-radius: 10px;
+	border-top-left-radius: 10px;
+	margin: 10px 2px 0 0;
+	border-top: 1px solid #7698c1;
+	border-right: 1px solid #7698c1;
+	cursor: pointer;
+}
+
+.texashomeschoolmap .header .tab:hover {
+	background: #5d81ad;
+}
+
+.texashomeschoolmap .header .activetab {
+	background: #305b90;
+}
+
+.texashomeschoolmap .header .activetab:hover {
+	background: #305b90;
+}
+
+.texashomeschoolmap .header .tabpages {
+	height: 0;
+	text-align: center;
+	transition: height .5s;
+	-webkit-transition: height .5s;
+	overflow: hidden;
+	z-index: 10;
+	position: relative;
+	background: #3a5a8c;
+}
+
+.texashomeschoolmap .header .tabpage {
+	padding: 20px 10px;
+	width: 1020px;
+	text-align: left;
+	display: inline-block;
+}
+
+.texashomeschoolmap .header .tabpage p {
+	margin: 20px 0;
+}
+
+.texashomeschoolmap .body {
+	height: calc(100% - 46px);
+}
+
+.texashomeschoolmap svg {
+	width: 100%;
+	height: 100%;
+	stroke-width: .3;
+}
+
+.texashomeschoolmap path {
+	stroke: #a0a7bd;
+	cursor: pointer;
+}
+
+.texashomeschoolmap path:hover {
+	opacity: .5;
+}
+
+.texashomeschoolmap .controls {
+	bottom: 70px;
+	left: 30px;
+	background: rgba(255, 255, 255, .5);
+	border-radius: 5px;
+	user-select: none;
+	-webkit-user-select: none;
+	position: absolute;
+}
+
+.texashomeschoolmap .controls .button {
+	margin: 5px;
+	padding: 0;
+	background: transparent;
+	cursor: pointer;
+}
+
+.texashomeschoolmap .controls .button:hover {
+	padding: 0;
+	opacity: .6;
+}
+
+.texashomeschoolmap .leftbar {
+	margin: 0;
+	width: 20%;
+	height: calc(100% - 180px);
+	color: #ffffff;
+	overflow: hidden;
+	float: left;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.texashomeschoolmap .leftbar .content {
+	padding: 20px 0 20px 20px;
+}
+
+.texashomeschoolmap .leftbar input {
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+.texashomeschoolmap .leftbar .ranking {
+	height: calc(100vh - 450px);
+	overflow-y: auto;
+}
+
+.texashomeschoolmap .leftbar .ranking::-webkit-scrollbar {
+	display: none;
+}
+
+.texashomeschoolmap .leftbar table {
+	color: #ffffff;
+}
+
+.texashomeschoolmap .leftbar td {
+	padding-right: 15px;
+}
+
+.texashomeschoolmap .frame {
+	width: 60%;
+	height: 100%;
+	display: inline-block;
+	vertical-align: top;
+	float: left;
+}
+
+.texashomeschoolmap .rightbar {
+	margin: 0;
+	width: 20%;
+	height: 50%;
+	color: #ffffff;
+	overflow: auto;
+	display: inline-block;
+	vertical-align: top;
+	float: right;
+}
+
+.texashomeschoolmap .rightbar::-webkit-scrollbar {
+	display: none;
+}
+
+.texashomeschoolmap .rightbar .content {
+	padding: 20px 20px 20px 20px;
+}
+
+.texashomeschoolmap .rightbar .withdrawals {
+	max-height: 55%;
+	overflow-y: auto;
+}
+
+.texashomeschoolmap .rightbar .withdrawals::-webkit-scrollbar {
+	display: none;
+}
+
+.texashomeschoolmap .graphbar canvas {
+	width: 100%;
+	max-height: 100%;
+}
+
+.texashomeschoolmap .graphbar {
+	margin: 0;
+	width: 20%;
+	height: 50%;
+	color: #ffffff;
+	overflow: auto;
+	display: inline-block;
+	vertical-align: top;
+	float: right;
+}
+
+.texashomeschoolmap .graphbar::-webkit-scrollbar {
+	display: none;
+}
+
+.texashomeschoolmap .graphbar .content {
+	padding: 20px;
+}
+
+.texashomeschoolmap .graph {
+	max-height: calc(100% - 130px);
+	max-width: calc(55vh - 150px);
+	background: #ffffff;
+	position: relative;
+}
+
+.texashomeschoolmap .spacer {
+	height: 20px;
+	width: 100%;
+}
+
+.texashomeschoolmap .loading {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background: #FFFFFF;
+	opacity: 0.5;
+	position: fixed;
+	z-index: 10;
+}
+
+.texashomeschoolmap .loading img {
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	margin: auto;
+	width: 32px;
+	height: 32px;
+	position: absolute;
+}
+
+@media only screen and (max-width: 1600px) {
+	.texashomeschoolmap .rightbar {
+		height: 55%;
+	}
+
+	.texashomeschoolmap .graphbar {
+		width: 27%;
+		height: 45%;
+		position: absolute;
+		top: 55%;
+		right: 0;
+		background: rgb(123 173 222 / 50%);
+		border-top-left-radius: 20px;
+	}
+}
+
+@media only screen and (max-width: 1200px) {
+	.texashomeschoolmap .header .tabpage {
+		width: 800px;
+	}
+
+	.texashomeschoolmap .frame {
+		height: 75%;
+	}
+
+	.texashomeschoolmap .graphbar {
+		width: 35%;
+		height: 50%;
+		top: 50%;
+	}
+}
+
+@media only screen and (max-width: 1000px) {
+	.texashomeschoolmap .header .tabpage {
+		width: 600px;
+	}
+
+	.texashomeschoolmap .graphbar {
+		width: 40%;
+	}
+}
+
+@media only screen and (max-width: 800px) {
+	.texashomeschoolmap .header .tabpage {
+		width: 400px;
+	}
+}
