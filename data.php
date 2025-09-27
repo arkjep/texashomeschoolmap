@@ -4,33 +4,61 @@
   |   Copyright (C) 2024, JEP   |
   |_____________________________|
 
-  map.php is part of the texashomeschoolmap plugin for thsc.org.
+  data.php is part of the texashomeschoolmap plugin for thsc.org.
 */
 
 include '../../../wp-load.php';
 
-// if (!current_user_can('manage_options')) {
-// 	echo json_encode(['result' => 'fail', 'message' => 'Access denied.']);
-// 	exit;
-// }
-
 global $wpdb;
 
-ini_set('memory_limit', '2048M');
+// Check if we only need districts (for shapes and mapping)
+if (isset($_GET['districts_only']) && $_GET['districts_only'] == '1') {
+    $districts = $wpdb->get_results('SELECT * FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_district');
+    header('Content-Type: application/json');
+    echo json_encode(['districts' => $districts]);
+    exit;
+}
 
-// Years
-$data = $wpdb->get_results('SELECT max(year) as year FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_districtwithdrawal');
-$latestYear = $data[0]->year;
+// Get the requested category type (default to county)
+$categoryType = isset($_GET['type']) ? sanitize_text_field($_GET['type']) : 'county';
 
+// Build the JSON file path
+$jsonFile = __DIR__ . '/data/' . $categoryType . '_withdrawals.json';
+
+// Check if file exists
+if (!file_exists($jsonFile)) {
+    // Fallback to county if specific type not found
+    $jsonFile = __DIR__ . '/data/county_withdrawals.json';
+    if (!file_exists($jsonFile)) {
+        http_response_code(404);
+        echo json_encode(['error' => 'No data available']);
+        exit;
+    }
+}
+
+// Get districts from database (this is still needed for mapping)
 $districts = $wpdb->get_results('SELECT * FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_district');
-$withdrawals = $wpdb->get_results('SELECT * FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_districtwithdrawal');
 
-$data = json_encode(['districts' => $districts, 'withdrawals' => $withdrawals, 'year' => $latestYear, 'yearfrom' => $latestYear - 1, 'yearto' => $latestYear]);
+// Read withdrawal data from JSON file
+$withdrawalData = json_decode(file_get_contents($jsonFile), true);
 
-// $f = fopen('data.json', 'w');
-// fwrite($f, $data);
-// fclose($f);
+// Get latest year from the data
+$latestYear = 0;
+foreach ($withdrawalData as $record) {
+    if ($record['year'] > $latestYear) {
+        $latestYear = $record['year'];
+    }
+}
 
+$data = json_encode([
+    'districts' => $districts, 
+    'withdrawals' => $withdrawalData, 
+    'year' => $latestYear, 
+    'yearfrom' => $latestYear - 1, 
+    'yearto' => $latestYear
+]);
+
+header('Content-Type: application/json');
 header('Content-Encoding: deflate');
 
 echo gzdeflate($data);

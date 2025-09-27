@@ -1,0 +1,16 @@
+# Allow JSON files to be served directly
+<Files "*.json">
+    Order allow,deny
+    Allow from all
+</Files>
+
+# Deny access to other file types
+<Files "*">
+    Order deny,allow
+    Deny from all
+</Files>
+
+<Files "*.json">
+    Order allow,deny
+    Allow from all
+</Files>

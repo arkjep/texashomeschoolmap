@@ -1,7 +1,7 @@
 <?php
 /* _____________________________
   |                             |
-  |   Copyright (C) 2024, JEP   |
+  |   Copyright (C) 2025, JEP   |
   |_____________________________|
 
   admin.php is part of the texashomeschoolmap plugin for thsc.org.
@@ -74,439 +74,117 @@ if ($_REQUEST['action'] == 'setpagesummary') {
 
 	$contents = file_get_contents($url);
 	echo $contents;
-	// } else if ($_REQUEST['action'] == 'homeschoolwithdrawaldataupload') {
-	// 	// Homeschool Withdrawal Data
-	// 	$filename = $_FILES['file']['tmp_name'];
-
-	// 	if (!$filename) {
-	// 		echo json_encode(['result' => 'fail', 'message' => 'No files uploaded.']);
-	// 		exit;
-	// 	}
-
-	// 	$contents = file_get_contents($filename);
-
-	// 	$lines = preg_split("/\r\n|\n|\r/", $contents);
-	// 	$linked = [];
-	// 	$processed = [];
-
-	// 	$read = 0;
-	// 	$skipped = [];
-	// 	$created = 0;
-	// 	$updated = 0;
-
-	// 	function linkDistricts($type, $links, $districtId)
-	// 	{
-	// 		global $wpdb;
-
-	// 		$w = 'where type=? and isd=?';
-
-	// 		foreach ($links as $district) {
-	// 			if (!intval($wpdb->get_var($wpdb->prepare('SELECT COUNT(*) FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_districtlink WHERE type=%s AND isd=%d AND district=%d', $type, $districtId, $district))))
-	// 				$wpdb->insert($wpdb->base_prefix . 'texashomeschoolmap_districtlink', ['type' => $type, 'isd' => $districtId, 'district' => $district], ['%s', '%d', '%d']);
-
-	// 			$w .= ' and district!=' . $district;
-	// 		}
-
-	// 		$wpdb->query('DELETE FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_districtlink where type="' . $type . '" and isd=' . $district . $w);
-	// 	}
-
-	// 	$i = 0;
-	// 	foreach ($lines as $line) {
-	// 		$i++;
-	// 		$cells = str_getcsv($line);
-	// 		$read++;
-
-	// 		if (!isset($cells[0]))
-	// 			break;
-
-	// 		$year = intval($cells[0]);
-	// 		$urban = $cells[4];
-	// 		$districtId = intval($cells[5]);
-	// 		$districtName = trim($cells[6]);
-	// 		$charter = $cells[9];
-	// 		$grade = intval($cells[10]);
-	// 		$withdrawal = floatval($cells[12]);
-
-	// 		if (!in_array($districtId, $linked)) {
-	// 			$congressionaldistrict = [];
-	// 			if (isset($cells[13]) && intval($cells[13]))
-	// 				$congressionaldistrict[] = intval($cells[13]);
-
-	// 			$senatedistrict = [];
-	// 			if (intval($cells[14]) && intval($cells[14]))
-	// 				$senatedistrict[] = intval($cells[14]);
-
-	// 			$housedistrict = [];
-	// 			if (isset($cells[15]) && intval($cells[15]))
-	// 				$housedistrict[] = intval($cells[15]);
-
-	// 			$sboe = [];
-	// 			if (isset($cells[16]) && intval($cells[16]))
-	// 				$sboe[] = intval($cells[16]);
-	// 		}
-
-	// 		if ($districtId && $year && $grade) {
-	// 			$districtKey = json_encode($v);
-	// 			$data = $wpdb->get_results('SELECT id, withdrawal FROM ' . $wpdb->base_prefix . 'texashomeschoolmap_districtwithdrawal WHERE district=' . $districtId . ' AND year=' . $year . ' AND grade=' . $grade);
-
-	// 			$results = $wpdb->get_results($query);
-
-	// 			if (in_array($districtKey, $processed))
-	// 				$formulatedb->set('texashomeschoolmap_districtwithdrawal', ['withdrawal' => $data[0]->withdrawal + $withdrawal], 'where id=?', [$data[0]->id]);
-	// 			else {
-	// 				if (!in_array($districtId, $linked)) {
-	// 					$countyName = explode(' ', $cells[2]);
-
-	// 					if (strtolower(end($countyName)) == 'county')
-	// 						array_pop($countyName);
-
-	// 					$countyName = implode(' ', $countyName);
-	// 					$county = $formulatedb->get('texashomeschoolmap_district', 'number', 'where type=? and name=?', array('county', $countyName));
-
-	// 					if (count($county))
-	// 						$county = $county[0]['number'];
-	// 					else {
-	// 						echo json_encode(['result' => 'fail', 'message' => 'Error: county: ' . $countyName . ' not found.']);
-	// 						exit;
-	// 					}
-
-	// 					$regionName = explode(' ', $cells[3]);
-
-	// 					switch ($regionName[0]) {
-	// 						case 'North':
-	// 							$region = 3;
-	// 							break;
-	// 						case 'South':
-	// 							$region = 6;
-	// 							break;
-	// 						case 'East':
-	// 							$region = 4;
-	// 							break;
-	// 						case 'West':
-	// 							$region = 2;
-	// 							break;
-	// 						case 'Central':
-	// 							$region = 5;
-	// 							break;
-	// 						case 'Panhandle':
-	// 							$region = 1;
-	// 							break;
-	// 						case 'Upper':
-	// 						case 'Gulf':
-	// 							$region = 7;
-	// 							break;
-	// 						default:
-	// 							echo json_encode(['result' => 'fail', 'message' => 'Error: region: ' . $cells[3] . ' not found.']);
-	// 							exit;
-	// 					}
-
-	// 					// District
-	// 					$w = 'where number=? and type=?';
-	// 					$v = array($districtId, 'schooldistrict');
-	// 					$urban = $urban == 'Urban' ? 1 : 0;
-	// 					$charter = $charter == 'YES' ? 1 : 0;
-	// 					$params = array('name' => $districtName, 'type' => 'schooldistrict', 'urban' => $urban, 'charter' => $charter);
-
-	// 					if ($formulatedb->size('texashomeschoolmap_district', $w, $v))
-	// 						$formulatedb->set('texashomeschoolmap_district', $params, $w, $v);
-	// 					else {
-	// 						$params['number'] = $districtId;
-	// 						$params['type'] = 'schooldistrict';
-	// 						$formulatedb->insert('texashomeschoolmap_district', $params);
-	// 					}
-
-	// 					// Links
-	// 					linkDistricts('county', array($county), $districtId);
-	// 					linkDistricts('region', array($region), $districtId);
-	// 					linkDistricts('senatedistrict', $senatedistrict, $districtId);
-	// 					linkDistricts('housedistrict', $housedistrict, $districtId);
-	// 					linkDistricts('congressional', $congressionaldistrict, $districtId);
-	// 					linkDistricts('sboe', $sboe, $districtId);
-
-	// 					$linked[] = $districtId;
-	// 				}
-
-	// 				// Withdrawals
-	// 				if (count($data)) {
-	// 					$updated++;
-	// 					$formulatedb->set('texashomeschoolmap_districtwithdrawal', array('withdrawal' => $withdrawal), 'where id=?', array($data[0]['id']));
-	// 				} else {
-	// 					$created++;
-	// 					$formulatedb->insert('texashomeschoolmap_districtwithdrawal', array('district' => $districtId, 'year' => $year, 'grade' => $grade, 'withdrawal' => $withdrawal));
-	// 				}
-
-	// 				$processed[] = $districtKey;
-	// 			}
-	// 		} else
-	// 			$skipped[] = $i;
-	// 	}
-
-	// 	echo json_encode(array('result' => 'success', 'read' => $read, 'skipped' => $skipped, 'updated' => $updated, 'created' => $created));
 } else if ($_REQUEST['action'] == 'countywithdrawalsupload') {
 	// Homeschool Withdrawals by County
 	global $wpdb;
-
 	$filename = $_FILES['file']['tmp_name'];
-
 	if (!$filename) {
-		echo json_encode(array('result' => 'fail', 'message' => 'No files uploaded.'));
+		echo json_encode(['result' => 'fail', 'message' => 'No files uploaded.']);
 		exit;
 	}
-
 	$contents = file_get_contents($filename);
 	$lines = preg_split("/\r\n|\n|\r/", $contents);
-	$processed = [];
-
-	$read = 0;
+	$bulkData = [];
 	$skipped = [];
-	$created = 0;
-	$updated = 0;
-
+	$read = 0;
 	$i = 0;
 	foreach ($lines as $line) {
-		if (!$i) {
-			$i++;
-			continue;
-		}
-
+		if (!$i) { $i++; continue; }
 		$i++;
 		$cells = str_getcsv($line);
 		$read++;
-
-		if (!isset($cells[0]))
-			break;
-
-		if (!isset($cells[7])) {
-			echo json_encode(['result' => 'fail', 'message' => 'File does not contain 8 columns on line ' . $i]);
-			exit;
-		}
-
+		if (!isset($cells[0]) || !isset($cells[7])) { $skipped[] = $i; continue; }
 		$year = intval($cells[0]);
-		$districtId = intval($cells[1]);
 		$districtName = trim($cells[2]);
 		$urban = $cells[3] == 'Urban' ? 1 : 0;
 		$charter = ($cells[4] == 'YES') ? 1 : 0;
 		$grade = trim($cells[5]);
 		$withdrawal = floatval($cells[6]);
 		$reenroll = floatval($cells[7]);
-
-		if ($reenroll < 0) {
-			$reenroll = 0;
-		}
-
-		if ($withdrawal < 0) {
-			$withdrawal = 0;
-		}
-
+		if ($reenroll < 0) $reenroll = 0;
+		if ($withdrawal < 0) $withdrawal = 0;
 		if ($districtName && $year && $grade && ($reenroll || $withdrawal)) {
 			$countyName = explode(' ', $districtName);
-
-			if (strtolower(end($countyName)) == 'county') {
-				array_pop($countyName);
-			}
-
+			if (strtolower(end($countyName)) == 'county') array_pop($countyName);
 			$countyName = implode(' ', $countyName);
-
-			// Fetch county ID
-			$county = $wpdb->get_var($wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}texashomeschoolmap_district WHERE type = %s AND name = %s",
-				'county',
-				$countyName
-			));
-
-			if (!$county) {
-				echo json_encode(array('result' => 'fail', 'message' => 'Error: county: ' . $countyName . ' not found.'));
-				exit;
-			}
-
-			$v = array($county, $year, $grade, $charter);
-			$districtKey = json_encode($v);
-
-			// Fetch withdrawal data
-			$withdrawaldata = $wpdb->get_row($wpdb->prepare(
-				"SELECT id, reenroll, withdrawal FROM {$wpdb->prefix}texashomeschoolmap_districtwithdrawal WHERE district = %d AND year = %d AND grade = %s AND charter = %d",
-				$county,
-				$year,
-				$grade,
-				$charter
-			), ARRAY_A);
-
-			if (in_array($districtKey, $processed)) {
-				$wpdb->update(
-					"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-					array(
-						'withdrawal' => $withdrawaldata['withdrawal'] + $withdrawal,
-						'reenroll' => $withdrawaldata['reenroll'] + $reenroll
-					),
-					array('id' => $withdrawaldata['id']),
-					array('%f', '%f'),
-					array('%d')
-				);
-			} else {
-				if ($withdrawaldata) {
-					$updated++;
-					$wpdb->update(
-						"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-						array(
-							'withdrawal' => $withdrawal,
-							'reenroll' => $reenroll,
-							'urban' => $urban
-						),
-						array('id' => $withdrawaldata['id']),
-						array('%f', '%f', '%d'),
-						array('%d')
-					);
-				} else {
-					$created++;
-					$wpdb->insert(
-						"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-						array(
-							'district' => $county,
-							'year' => $year,
-							'grade' => $grade,
-							'charter' => $charter,
-							'withdrawal' => $withdrawal,
-							'reenroll' => $reenroll,
-							'urban' => $urban
-						),
-						array('%d', '%d', '%s', '%d', '%f', '%f', '%d')
-					);
-				}
-
-				$processed[] = $districtKey;
-			}
+			$county = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}texashomeschoolmap_district WHERE type = %s AND name = %s", 'county', $countyName));
+			if (!$county) { $skipped[] = $i; continue; }
+			$bulkData[] = [
+				'district_id' => intval($county),
+				'year' => intval($year),
+				'grade' => $grade,
+				'charter' => intval($charter),
+				'withdrawal' => floatval($withdrawal),
+				'reenroll' => floatval($reenroll),
+				'urban' => intval($urban)
+			];
 		} else {
 			$skipped[] = $i;
 		}
 	}
-
-	echo json_encode(['result' => 'success', 'read' => $read, 'skipped' => $skipped, 'updated' => $updated, 'created' => $created]);
+	// Process and save county data to JSON file
+	if (count($bulkData)) {
+		// Save to JSON file
+		$jsonFile = __DIR__ . '/data/county_withdrawals.json';
+		if (!is_dir(__DIR__ . '/data')) {
+			mkdir(__DIR__ . '/data', 0755, true);
+		}
+		file_put_contents($jsonFile, json_encode($bulkData, JSON_PRETTY_PRINT));
+	}
+	echo json_encode(['result' => 'success', 'read' => $read, 'skipped' => $skipped, 'created' => count($bulkData)]);
 } else if ($_REQUEST['action'] == 'districtwithdrawalsupload') {
 	// Homeschool Withdrawals by District
 	global $wpdb;
-
 	$filename = $_FILES['file']['tmp_name'];
-
 	if (!$filename) {
-		echo json_encode(array('result' => 'fail', 'message' => 'No files uploaded.'));
+		echo json_encode(['result' => 'fail', 'message' => 'No files uploaded.']);
 		exit;
 	}
-
 	$contents = file_get_contents($filename);
 	$lines = preg_split("/\r\n|\n|\r/", $contents);
-	$processed = [];
-
-	$read = 0;
+	$bulkData = [];
 	$skipped = [];
-	$created = 0;
-	$updated = 0;
-
+	$read = 0;
 	$i = 0;
 	foreach ($lines as $line) {
-		if (!$i) {
-			$i++;
-			continue;
-		}
-
+		if (!$i) { $i++; continue; }
 		$i++;
 		$cells = str_getcsv($line);
 		$read++;
-
-		if (!isset($cells[0])) {
-			break;
-		}
-
-		if (!isset($cells[5])) {
-			echo json_encode(['result' => 'fail', 'message' => 'File does not contain 6 columns on line ' . $i]);
-			exit;
-		}
-
+		if (!isset($cells[0]) || !isset($cells[5])) { $skipped[] = $i; continue; }
 		$year = intval($cells[0]);
 		$districtId = intval($cells[1]);
 		$charter = ($cells[2] == 'YES') ? 1 : 0;
 		$grade = trim($cells[3]);
 		$withdrawal = floatval($cells[4]);
 		$reenroll = floatval($cells[5]);
-
-		if ($reenroll < 0) {
-			$reenroll = 0;
-		}
-
-		if ($withdrawal < 0) {
-			$withdrawal = 0;
-		}
-
+		if ($reenroll < 0) $reenroll = 0;
+		if ($withdrawal < 0) $withdrawal = 0;
 		if ($districtId && $year && $grade && ($reenroll || $withdrawal)) {
-			// Fetch district ID
-			$district = $wpdb->get_var($wpdb->prepare(
-				"SELECT id FROM {$wpdb->prefix}texashomeschoolmap_district WHERE type = %s AND number = %d",
-				$_REQUEST['districttype'],
-				$districtId
-			));
-
-			if (!$district) {
-				echo json_encode(array('result' => 'fail', 'message' => 'Error: district: ' . $districtId . ' not found.'));
-				exit;
-			}
-
-			$v = array($district, $year, $grade, $charter);
-			$districtKey = json_encode($v);
-
-			// Fetch withdrawal data
-			$withdrawaldata = $wpdb->get_row($wpdb->prepare(
-				"SELECT id, reenroll, withdrawal FROM {$wpdb->prefix}texashomeschoolmap_districtwithdrawal WHERE district = %d AND year = %d AND grade = %s AND charter = %d",
-				$district,
-				$year,
-				$grade,
-				$charter
-			), ARRAY_A);
-
-			if (in_array($districtKey, $processed)) {
-				$wpdb->update(
-					"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-					array(
-						'withdrawal' => $withdrawaldata['withdrawal'] + $withdrawal,
-						'reenroll' => $withdrawaldata['reenroll'] + $reenroll
-					),
-					array('id' => $withdrawaldata['id']),
-					array('%f', '%f'),
-					array('%d')
-				);
-			} else {
-				if ($withdrawaldata) {
-					$updated++;
-					$wpdb->update(
-						"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-						array(
-							'withdrawal' => $withdrawal,
-							'reenroll' => $reenroll
-						),
-						array('id' => $withdrawaldata['id']),
-						array('%f', '%f'),
-						array('%d')
-					);
-				} else {
-					$created++;
-					$wpdb->insert(
-						"{$wpdb->prefix}texashomeschoolmap_districtwithdrawal",
-						array(
-							'district' => $district,
-							'year' => $year,
-							'grade' => $grade,
-							'charter' => $charter,
-							'withdrawal' => $withdrawal,
-							'reenroll' => $reenroll
-						),
-						array('%d', '%d', '%s', '%d', '%f', '%f')
-					);
-				}
-
-				$processed[] = $districtKey;
-			}
+			$district = $wpdb->get_var($wpdb->prepare("SELECT id FROM {$wpdb->prefix}texashomeschoolmap_district WHERE type = %s AND number = %d", $_REQUEST['districttype'], $districtId));
+			if (!$district) { $skipped[] = $i; continue; }
+			$bulkData[] = [
+				'district_id' => intval($district),
+				'year' => intval($year),
+				'grade' => $grade,
+				'charter' => intval($charter),
+				'withdrawal' => floatval($withdrawal),
+				'reenroll' => floatval($reenroll)
+			];
 		} else {
 			$skipped[] = $i;
 		}
 	}
-
-	echo json_encode(['result' => 'success', 'read' => $read, 'skipped' => $skipped, 'updated' => $updated, 'created' => $created]);
+	// Process and save district data to JSON file
+	if (count($bulkData)) {
+		$districtType = $_REQUEST['districttype'];
+		
+		// Save to JSON file named after district type
+		$jsonFile = __DIR__ . '/data/' . $districtType . '_withdrawals.json';
+		if (!is_dir(__DIR__ . '/data')) {
+			mkdir(__DIR__ . '/data', 0755, true);
+		}
+		file_put_contents($jsonFile, json_encode($bulkData, JSON_PRETTY_PRINT));
+	}
+	echo json_encode(['result' => 'success', 'read' => $read, 'skipped' => $skipped, 'created' => count($bulkData)]);
 }

@@ -54,6 +54,9 @@ function texashomeschoolmapDisplay() {
 	var map = texashomeschoolmapData.map;
 	var greatest = 0;
 	var districts = [];
+	
+	// Get withdrawal data for current map type
+	var currentWithdrawals = texashomeschoolmapData.withdrawalsByType[map.type] || [];
 
 	for (var s = 0; s < map.children.length; s++) {
 		var shape = map.children[s];
@@ -68,12 +71,16 @@ function texashomeschoolmapDisplay() {
 		var districtwithdrawals = [];
 
 		if (shape.district.type == 'state') {
+			// For state view, aggregate from all county data
+			var countyWithdrawals = texashomeschoolmapData.withdrawalsByType['county'] || [];
 			for (var c = 0; c < texashomeschoolmapData.maps.county.children.length; c++) {
 				var county = texashomeschoolmapData.maps.county.children[c];
-				districtwithdrawals = districtwithdrawals.concat(texashomeschoolmapData.withdrawals.filter(function (a) { return a.district == county.district.id }));
+				districtwithdrawals = districtwithdrawals.concat(countyWithdrawals.filter(function (a) { return a.district_id == county.district.id }));
 			}
-		} else
-			districtwithdrawals = texashomeschoolmapData.withdrawals.filter(function (a) { return a.district == shape.district.id });
+		} else {
+			// Filter withdrawals for current district
+			districtwithdrawals = currentWithdrawals.filter(function (a) { return a.district_id == shape.district.id });
+		}
 
 		for (var y = texashomeschoolmapData.year; y <= texashomeschoolmapData.yearto; y++) {
 			var withdrawals = districtwithdrawals.filter(function (a) { return a.year == y });
@@ -185,14 +192,20 @@ function texashomeschoolmapSelectPath(district) {
 
 	var withdrawalA = 0, withdrawalB = 0, withdrawals = 0;
 	var districtwithdrawals = [];
+	
+	// Get withdrawal data for current map type
+	var currentWithdrawals = texashomeschoolmapData.withdrawalsByType[type] || [];
 
 	if (type == 'state') {
+		// For state view, aggregate from all county data
+		var countyWithdrawals = texashomeschoolmapData.withdrawalsByType['county'] || [];
 		for (var c = 0; c < texashomeschoolmapData.maps.county.children.length; c++) {
 			var county = texashomeschoolmapData.maps.county.children[c];
-			districtwithdrawals = districtwithdrawals.concat(texashomeschoolmapData.withdrawals.filter(function (a) { return a.district == county.district.id }));
+			districtwithdrawals = districtwithdrawals.concat(countyWithdrawals.filter(function (a) { return a.district_id == county.district.id }));
 		}
-	} else
-		districtwithdrawals = texashomeschoolmapData.withdrawals.filter(function (a) { return a.district == id });
+	} else {
+		districtwithdrawals = currentWithdrawals.filter(function (a) { return a.district_id == id });
+	}
 
 	var yearwithdrawals = districtwithdrawals.filter(function (a) { return a.year == yearA });
 
@@ -710,11 +723,73 @@ texashomeschoolmapElement.addEventListener('mousemove', function (e) {
 	texashomeschoolmapView.mouseY = e.clientY;
 });
 
-Ajax.send({
-	method: 'get', url: config.rootUrl + 'data.php', onfinish: function (r, e, p) {
-		texashomeschoolmapData = r;
+// Load district data and all withdrawal JSON files
+var loadPromises = [];
+var withdrawalData = {};
 
-		var years = texashomeschoolmapData.withdrawals.map(w => parseInt(w.year));
+// Load districts from database (for shapes and mapping)
+loadPromises.push(
+	new Promise((resolve, reject) => {
+		Ajax.send({
+			method: 'get',
+			url: config.rootUrl + 'data.php?districts_only=1',
+			onfinish: function (r, e, p) {
+				if (r && r.districts) {
+					resolve(r.districts);
+				} else {
+					reject('Failed to load districts');
+				}
+			}
+		});
+	})
+);
+
+// Load all withdrawal JSON files
+var withdrawalTypes = ['county', 'housedistrict', 'senatedistrict', 'congressional', 'sboe'];
+
+withdrawalTypes.forEach(type => {
+	loadPromises.push(
+		new Promise((resolve, reject) => {
+			Ajax.send({
+				method: 'get',
+				url: config.rootUrl + 'data/' + type + '_withdrawals.json',
+				onfinish: function (r, e, p) {
+					if (r && Array.isArray(r)) {
+						withdrawalData[type] = r;
+						resolve(type);
+					} else {
+						// If file doesn't exist, resolve with empty array
+						withdrawalData[type] = [];
+						resolve(type);
+					}
+				},
+				onerror: function() {
+					// If file doesn't exist, resolve with empty array
+					withdrawalData[type] = [];
+					resolve(type);
+				}
+			});
+		})
+	);
+});
+
+Promise.all(loadPromises).then((results) => {
+	var districts = results[0]; // First result is districts
+	
+	// Combine all withdrawal data
+	var allWithdrawals = [];
+	for (var type in withdrawalData) {
+		allWithdrawals = allWithdrawals.concat(withdrawalData[type]);
+	}
+	
+	texashomeschoolmapData = {
+		districts: districts,
+		withdrawals: allWithdrawals,
+		withdrawalsByType: withdrawalData
+	};
+
+	if (allWithdrawals.length > 0) {
+		var years = allWithdrawals.map(w => parseInt(w.year));
 		var minYear = Math.min(...years);
 		var maxYear = Math.max(...years);
 
@@ -735,53 +810,60 @@ Ajax.send({
 
 		year.value = maxYear;
 		yearto.value = maxYear;
+		
+		texashomeschoolmapData.year = maxYear;
+		texashomeschoolmapData.yearto = maxYear;
+		texashomeschoolmapData.yearfrom = maxYear - 1;
+	}
 
-		var districts = {};
+	var districtsByType = {};
 
-		for (var i = 0; i < texashomeschoolmapData.districts.length; i++) {
-			var district = texashomeschoolmapData.districts[i];
+	for (var i = 0; i < districts.length; i++) {
+		var district = districts[i];
 
-			if (!districts[district.type])
-				districts[district.type] = {};
+		if (!districtsByType[district.type])
+			districtsByType[district.type] = {};
 
-			if (!districts[district.type][district.number])
-				districts[district.type][district.number] = district;
-		}
+		if (!districtsByType[district.type][district.number])
+			districtsByType[district.type][district.number] = district;
+	}
 
-		texashomeschoolmapData.districts = districts;
-		texashomeschoolmapData.maps = {};
+	texashomeschoolmapData.districts = districtsByType;
+	texashomeschoolmapData.maps = {};
 
-		var mapTypes = Object.keys(districts);
+	var mapTypes = Object.keys(districtsByType);
 
-		for (var m = 0; m < mapTypes.length; m++) {
-			var type = mapTypes[m];
-			var map = districts[type];
-			var districtNumbers = Object.keys(map);
+	for (var m = 0; m < mapTypes.length; m++) {
+		var type = mapTypes[m];
+		var map = districtsByType[type];
+		var districtNumbers = Object.keys(map);
 
-			var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
-			svg.setAttribute('viewBox', '0 0 512 512');
-			svg.setAttribute('onclick', 'texashomeschoolmapDisselectPath(event)');
-			svg.type = type;
-			texashomeschoolmapElement.appendChild(svg);
-			texashomeschoolmapData.maps[mapTypes[m]] = svg;
+		var svg = document.createElementNS('http://www.w3.org/2000/svg', 'svg');
+		svg.setAttribute('viewBox', '0 0 512 512');
+		svg.setAttribute('onclick', 'texashomeschoolmapDisselectPath(event)');
+		svg.type = type;
+		texashomeschoolmapElement.appendChild(svg);
+		texashomeschoolmapData.maps[mapTypes[m]] = svg;
 
-			for (var d = 0; d < districtNumbers.length; d++) {
-				var district = map[districtNumbers[d]];
+		for (var d = 0; d < districtNumbers.length; d++) {
+			var district = map[districtNumbers[d]];
 
-				if (district.shape) {
-					var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-					path.setAttribute('d', district.shape);
-					path.setAttribute('onmouseenter', 'texashomeschoolmapHover(this)');
-					path.setAttribute('onclick', 'texashomeschoolmapClick(this)');
-					path.district = district;
-					svg.appendChild(path);
-				}
+			if (district.shape) {
+				var path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+				path.setAttribute('d', district.shape);
+				path.setAttribute('onmouseenter', 'texashomeschoolmapHover(this)');
+				path.setAttribute('onclick', 'texashomeschoolmapClick(this)');
+				path.district = district;
+				svg.appendChild(path);
 			}
 		}
-
-		document.getElementById('texashomeschoolmap-map').value = 'county';
-		texashomeschoolmapSelect('county');
-
-		document.getElementById('texashomeschoolmap-loading').style.display = 'none';
 	}
+
+	document.getElementById('texashomeschoolmap-map').value = 'county';
+	texashomeschoolmapSelect('county');
+
+	document.getElementById('texashomeschoolmap-loading').style.display = 'none';
+}).catch((error) => {
+	console.error('Failed to load map data:', error);
+	document.getElementById('texashomeschoolmap-loading').innerHTML = 'Failed to load map data.';
 });
